@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#070b18">
+  <title>Brillante — Un pequeño poema</title>
+
+  <style>
+    :root {
+      --fondo: #070b18;
+      --texto: #eef2ff;
+      --suave: #a9b5d4;
+      --acento: #b8d8ff;
+      --dorado: #f0dca2;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--texto);
+      background:
+        radial-gradient(ellipse at 50% 15%, rgba(39, 63, 117, 0.28), transparent 48%),
+        radial-gradient(ellipse at 85% 75%, rgba(46, 37, 93, 0.18), transparent 42%),
+        var(--fondo);
+      font-family: Georgia, "Times New Roman", serif;
+      overflow-x: hidden;
+    }
+
+    #cielo {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .pagina {
+      position: relative;
+      z-index: 1;
+      width: min(900px, 100%);
+      margin: 0 auto;
+      padding: 34px 24px 54px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      color: var(--suave);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .punto {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      margin-right: 8px;
+      border-radius: 50%;
+      background: var(--dorado);
+      box-shadow: 0 0 12px rgba(240, 220, 162, 0.7);
+      vertical-align: middle;
+    }
+
+    .hero {
+      min-height: 57vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 60px 0 45px;
+    }
+
+    .etiqueta {
+      color: var(--acento);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 0.72rem;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(3.5rem, 12vw, 7.8rem);
+      line-height: 0.98;
+      font-weight: 400;
+      letter-spacing: 0.07em;
+      text-indent: 0.07em;
+      background: linear-gradient(120deg, #ffffff 15%, #b8d8ff 55%, #f0dca2 95%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      filter: drop-shadow(0 0 24px rgba(153, 193, 255, 0.13));
+      animation: aparecerTitulo 1.8s ease both;
+    }
+
+    .subtitulo {
+      max-width: 430px;
+      margin: 24px auto 0;
+      color: var(--suave);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 0.96rem;
+      line-height: 1.8;
+      font-weight: 300;
+    }
+
+    .orbita {
+      position: relative;
+      width: 110px;
+      height: 26px;
+      margin-top: 36px;
+    }
+
+    .orbita::before {
+      content: "";
+      position: absolute;
+      left: 8px;
+      right: 8px;
+      top: 12px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(184, 216, 255, 0.65), transparent);
+    }
+
+    .orbita::after {
+      content: "✦";
+      position: absolute;
+      top: 0;
+      left: calc(50% - 7px);
+      color: var(--dorado);
+      font-size: 14px;
+      animation: pulso 3s ease-in-out infinite;
+    }
+
+    .poema-contenedor {
+      position: relative;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 34px clamp(20px, 5vw, 48px) 40px;
+      border: 1px solid rgba(184, 216, 255, 0.15);
+      border-radius: 3px;
+      background: linear-gradient(145deg, rgba(18, 27, 51, 0.68), rgba(8, 13, 29, 0.55));
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.18);
+      backdrop-filter: blur(5px);
+    }
+
+    .encabezado-poema {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid rgba(184, 216, 255, 0.13);
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--suave);
+      font-size: 0.68rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    .numero {
+      color: var(--dorado);
+    }
+
+    #poema {
+      min-height: 370px;
+      padding-top: 27px;
+      font-size: clamp(1.02rem, 2.6vw, 1.18rem);
+      line-height: 1.95;
+      text-align: center;
+    }
+
+    .linea {
+      display: block;
+      min-height: 1.95em;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 850ms ease, transform 850ms ease;
+    }
+
+    .linea.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .linea.espacio {
+      min-height: 0.8em;
+    }
+
+    .linea.destacada {
+      color: var(--dorado);
+      letter-spacing: 0.04em;
+    }
+
+    .linea.final {
+      margin-top: 12px;
+      color: #d9e9ff;
+      font-style: italic;
+    }
+
+    .controles {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 27px;
+    }
+
+    button {
+      border: 1px solid rgba(184, 216, 255, 0.36);
+      border-radius: 2px;
+      padding: 12px 19px;
+      background: rgba(184, 216, 255, 0.07);
+      color: var(--texto);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 0.76rem;
+      letter-spacing: 0.09em;
+      cursor: pointer;
+      transition: background 200ms ease, border-color 200ms ease, transform 200ms ease;
+    }
+
+    button:hover {
+      background: rgba(184, 216, 255, 0.15);
+      border-color: var(--acento);
+      transform: translateY(-2px);
+    }
+
+    button:focus-visible {
+      outline: 2px solid var(--dorado);
+      outline-offset: 4px;
+    }
+
+    .nota {
+      margin: 24px 0 0;
+      color: #8492b5;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 0.75rem;
+      line-height: 1.7;
+      text-align: center;
+    }
+
+    footer {
+      padding-top: 42px;
+      text-align: center;
+      color: #7e8bab;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 0.68rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    @keyframes aparecerTitulo {
+      from { opacity: 0; transform: translateY(12px); letter-spacing: 0.16em; }
+      to { opacity: 1; transform: translateY(0); letter-spacing: 0.07em; }
+    }
+
+    @keyframes pulso {
+      0%, 100% { opacity: 0.65; transform: scale(0.9); }
+      50% { opacity: 1; transform: scale(1.2); }
+    }
+
+    @media (max-width: 520px) {
+      .pagina { padding: 24px 16px 38px; }
+      header { font-size: 0.62rem; letter-spacing: 0.1em; }
+      .hero { min-height: 48vh; padding-top: 45px; }
+      .poema-contenedor { padding: 25px 17px 30px; }
+      #poema { min-height: 400px; line-height: 1.85; }
+      .encabezado-poema { font-size: 0.59rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="cielo" aria-hidden="true"></canvas>
+
+  <main class="pagina">
+    <header>
+      <span><span class="punto"></span>Una pequeña muestra</span>
+      <span>9/10/2026 / Una pequeña constelación de muchas</span>
+    </header>
+
+    <section class="hero" aria-labelledby="titulo">
+      <div class="etiqueta">Una cualidad difícil de explicar</div>
+      <h1 id="titulo">BRILLANTE</h1>
+      <p class="subtitulo">
+        Hay personas que destacan sin siquiera intentarlo.
+        A veces, una sola palabra no basta… pero es un buen comienzo.
+      </p>
+      <div class="orbita" aria-hidden="true"></div>
+    </section>
+
+    <section class="poema-contenedor" aria-label="Poema Brillante">
+      <div class="encabezado-poema">
+        <span>Fragmento escrito</span>
+        <span class="numero">N.º 001</span>
+      </div>
+
+      <div id="poema" aria-live="polite" aria-label="Poema que aparece línea por línea"></div>
+
+      <div class="controles">
+        <button id="iniciar" type="button">Revelar poema</button>
+        <button id="reiniciar" type="button">Volver a empezar</button>
+      </div>
+      <p class="nota" id="estado">Todo lo que pienso esta aquí</p>
+    </section>
+
+    <footer>Algunas luces no necesitan llamar la atención.</footer>
+  </main>
+
+  <script>
+    // Puedes cambiar aquí el texto del poema.
+    const lineasPoema = [
+      { texto: "Si tuviera que describirte en una palabra,", tipo: "" },
+      { texto: "sin pensarlo dos veces, diría brillante,", tipo: "" },
+      { texto: "porque hay algo en ti que no se encuentra en cualquiera,", tipo: "" },
+      { texto: "una luz que te hace destacar entre tantas personas.", tipo: "" },
+      { texto: "", tipo: "espacio" },
+      { texto: "No es solo tu belleza, sino tu forma de ser,", tipo: "" },
+      { texto: "esa esencia tuya tan difícil de explicar,", tipo: "" },
+      { texto: "que hace especiales hasta los momentos más simples", tipo: "" },
+      { texto: "y que, sin darte cuenta, te hace admirar.", tipo: "" },
+      { texto: "", tipo: "espacio" },
+      { texto: "Quizá no sepas lo mucho que puedes iluminar,", tipo: "" },
+      { texto: "ni lo bonito que es conocerte,", tipo: "" },
+      { texto: "pero si algún día olvidas lo especial que eres,", tipo: "" },
+      { texto: "recuerda que hay luces que nunca dejan de brillar.", tipo: "final" },
+      { texto: "", tipo: "espacio" },
+      { texto: "BRILLANTE", tipo: "destacada" }
+    ];
+
+    const contenedorPoema = document.getElementById("poema");
+    const botonIniciar = document.getElementById("iniciar");
+    const botonReiniciar = document.getElementById("reiniciar");
+    const estado = document.getElementById("estado");
+
+    let indiceLinea = 0;
+    let temporizador = null;
+    let iniciado = false;
+
+    function prepararPoema() {
+      contenedorPoema.innerHTML = "";
+
+      lineasPoema.forEach((linea) => {
+        const elemento = document.createElement("span");
+        elemento.className = "linea " + (linea.tipo || "");
+        elemento.textContent = linea.texto || "\u00a0";
+        contenedorPoema.appendChild(elemento);
+      });
+    }
+
+    function revelarSiguienteLinea() {
+      const elementos = contenedorPoema.querySelectorAll(".linea");
+
+      if (indiceLinea >= elementos.length) {
+        clearTimeout(temporizador);
+        temporizador = null;
+        iniciado = false;
+        botonIniciar.textContent = "Ver de nuevo";
+        estado.textContent = "Fin del fragmento.";
+        return;
+      }
+
+      elementos[indiceLinea].classList.add("visible");
+      indiceLinea += 1;
+
+      const ultimaLinea = indiceLinea >= elementos.length;
+      temporizador = setTimeout(revelarSiguienteLinea, ultimaLinea ? 450 : 950);
+    }
+
+    function iniciarPoema() {
+      if (temporizador) {
+        clearTimeout(temporizador);
+        temporizador = null;
+      }
+
+      const elementos = contenedorPoema.querySelectorAll(".linea");
+
+      if (indiceLinea >= elementos.length) {
+        reiniciarPoema();
+      }
+
+      if (!iniciado) {
+        iniciado = true;
+        botonIniciar.textContent = "Mostrando…";
+        estado.textContent = "Las palabras van tomando forma.";
+        revelarSiguienteLinea();
+      }
+    }
+
+    function reiniciarPoema() {
+      if (temporizador) {
+        clearTimeout(temporizador);
+        temporizador = null;
+      }
+
+      indiceLinea = 0;
+      iniciado = false;
+      prepararPoema();
+      botonIniciar.textContent = "Revelar poema";
+      estado.textContent = "Cada línea aparecerá a su propio ritmo.";
+    }
+
+    botonIniciar.addEventListener("click", iniciarPoema);
+    botonReiniciar.addEventListener("click", reiniciarPoema);
+
+    prepararPoema();
+
+    // Cielo animado: estrellas y líneas de constelaciones.
+    const canvas = document.getElementById("cielo");
+    const contexto = canvas.getContext("2d");
+    let ancho = 0;
+    let alto = 0;
+    let estrellas = [];
+    let animacionActiva = true;
+
+    function crearCielo() {
+      const escala = Math.min(window.devicePixelRatio || 1, 2);
+      ancho = window.innerWidth;
+      alto = window.innerHeight;
+
+      canvas.width = Math.floor(ancho * escala);
+      canvas.height = Math.floor(alto * escala);
+      canvas.style.width = ancho + "px";
+      canvas.style.height = alto + "px";
+      contexto.setTransform(escala, 0, 0, escala, 0, 0);
+
+      const cantidad = Math.min(170, Math.floor((ancho * alto) / 6500));
+      estrellas = [];
+
+      for (let i = 0; i < cantidad; i++) {
+        estrellas.push({
+          x: Math.random() * ancho,
+          y: Math.random() * alto,
+          radio: Math.random() * 1.4 + 0.25,
+          brillo: Math.random() * 0.55 + 0.2,
+          velocidad: Math.random() * 0.012 + 0.003,
+          fase: Math.random() * Math.PI * 2
+        });
+      }
+    }
+
+    function dibujarCielo(tiempo) {
+      if (!animacionActiva) return;
+
+      contexto.clearRect(0, 0, ancho, alto);
+
+      estrellas.forEach((estrella) => {
+        const parpadeo = (Math.sin(tiempo * estrella.velocidad + estrella.fase) + 1) / 2;
+        const alfa = estrella.brillo * (0.55 + parpadeo * 0.45);
+
+        contexto.beginPath();
+        contexto.arc(estrella.x, estrella.y, estrella.radio, 0, Math.PI * 2);
+        contexto.fillStyle = `rgba(220, 233, 255, ${alfa})`;
+        contexto.fill();
+      });
+
+      // Une estrellas cercanas para sugerir constelaciones.
+      for (let i = 0; i < estrellas.length; i++) {
+        for (let j = i + 1; j < estrellas.length; j++) {
+          const dx = estrellas[i].x - estrellas[j].x;
+          const dy = estrellas[i].y - estrellas[j].y;
+          const distancia = Math.sqrt(dx * dx + dy * dy);
+
+          if (distancia < 105) {
+            contexto.beginPath();
+            contexto.moveTo(estrellas[i].x, estrellas[i].y);
+            contexto.lineTo(estrellas[j].x, estrellas[j].y);
+            contexto.strokeStyle = `rgba(145, 177, 230, ${(1 - distancia / 105) * 0.11})`;
+            contexto.lineWidth = 0.6;
+            contexto.stroke();
+          }
+        }
+      }
+
+      requestAnimationFrame(dibujarCielo);
+    }
+
+    window.addEventListener("resize", crearCielo);
+
+    document.addEventListener("visibilitychange", () => {
+      animacionActiva = !document.hidden;
+      if (animacionActiva) requestAnimationFrame(dibujarCielo);
+    });
+
+    crearCielo();
+    requestAnimationFrame(dibujarCielo);
+  </script>
+</body>
+</html>
